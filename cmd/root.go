@@ -31,10 +31,7 @@ var cfgFile string
 var rootCmd = &cobra.Command{
 	Use:   "cowin",
 	Short: "CLI to interact with Co-Win Govt API",
-	Long:  `This CLI tool is used to interact with Co-Win APIs and access information provided to its users.`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	// Run: func(cmd *cobra.Command, args []string) { },
+	Long:  `This CLI tool is used to interact with Co-Win APIs and access the information provided to its users.`,
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -46,10 +43,12 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 
+	// Here you will add sub-commands
+	rootCmd.AddCommand(getCmd)
+
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
-
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.cowin.yaml)")
 
 	// Cobra also supports local flags, which will only run
