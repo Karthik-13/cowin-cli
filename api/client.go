@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	PublicURLV2 = "https://cdn-api.co-vin.in/api/v2"
+	PublicURLV2 = "cdn-api.co-vin.in/api/v2"
 )
 
 var client *http.Client

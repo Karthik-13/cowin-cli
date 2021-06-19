@@ -23,24 +23,25 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// getStatesCmd represents the states command
-func getStatesCmd() *cobra.Command {
+var stateId string
+
+// getDistrictsCmd represents the districts command
+func getDistrictsCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "states",
-		Short: "List of states in India",
-		Long:  `Prints a list of all the states in India`,
-		Args:  cobra.NoArgs,
+		Use:   "districts",
+		Short: "List of districts in given state id",
+		Long:  `Prints a list of all the districts in given state id`,
 		Run: func(cmd *cobra.Command, args []string) {
 			var data [][]string
 
-			res, err := api.GetStates()
+			res, err := api.GetDistricts(stateId)
 			if err != nil {
-				fmt.Printf("Couldn't get states info - %v", err)
+				fmt.Printf("Couldn't get districts info - %v", err)
 				return
 			}
 
-			for _, state := range res.States {
-				row := []string{strconv.Itoa(state.ID), state.Name}
+			for _, district := range res.Districts {
+				row := []string{strconv.Itoa(district.ID), district.Name}
 				data = append(data, row)
 			}
 
@@ -55,6 +56,9 @@ func getStatesCmd() *cobra.Command {
 			table.Render()
 		},
 	}
+
+	cmd.Flags().StringVar(&stateId, "state-id", "", "Specify a state id")
+	cmd.MarkFlagRequired("state-id")
 
 	return cmd
 }

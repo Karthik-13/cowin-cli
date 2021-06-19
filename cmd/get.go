@@ -22,6 +22,13 @@ import (
 	"github.com/spf13/cobra"
 )
 
+const (
+	ALIGN_DEFAULT = iota
+	ALIGN_CENTER
+	ALIGN_RIGHT
+	ALIGN_LEFT
+)
+
 var (
 	getHelp = `
 This command consists of multiple subcommands which can be used to
@@ -38,8 +45,8 @@ get extended information about the Co-Win vaccine drive, including:
 	}
 )
 
-func init() {
-	table := tablewriter.NewWriter(os.Stdout)
+func getTable() *tablewriter.Table {
+	var table = tablewriter.NewWriter(os.Stdout)
 	table.SetNoWhiteSpace(false)
 	table.SetAutoWrapText(false)
 	table.SetAutoFormatHeaders(true)
@@ -53,7 +60,13 @@ func init() {
 	table.SetTablePadding("\t") // pad with tabs
 	table.SetNoWhiteSpace(true)
 
+	return table
+}
+
+func init() {
+
 	getCmd.AddCommand(getStatesCmd())
+	getCmd.AddCommand(getDistrictsCmd())
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
