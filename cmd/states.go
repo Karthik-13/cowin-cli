@@ -18,11 +18,9 @@ package cmd
 import (
 	"encoding/json"
 	"log"
-	"os"
 	"strconv"
 
 	"github.com/Karthik-13/cowin-cli/api"
-	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 )
 
@@ -65,7 +63,7 @@ func getStates() {
 		log.Printf("Could not unmarshal states list. %v", err)
 	}
 
-	table := tablewriter.NewWriter(os.Stdout)
+	table := api.GenerateTable()
 	table.SetHeader([]string{"State Id", "State Name"})
 	for _, element := range statesList {
 		stateId := strconv.Itoa(element.StateID)

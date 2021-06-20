@@ -19,11 +19,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"os"
 	"strconv"
 
 	"github.com/Karthik-13/cowin-cli/api"
-	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 )
 
@@ -72,11 +70,10 @@ func getDistricts(stateId string) {
 		log.Printf("Could not unmarshal states list. %v", err)
 	}
 
-	table := tablewriter.NewWriter(os.Stdout)
+	table := api.GenerateTable()
 	table.SetHeader([]string{"District Id", "District Name"})
 	for _, element := range districtList {
-		districtId := strconv.Itoa(element.DistrictId)
-		data := []string{districtId, element.DistrictName}
+		data := []string{strconv.Itoa(element.DistrictId), element.DistrictName}
 		table.Append(data)
 	}
 	table.Render()
