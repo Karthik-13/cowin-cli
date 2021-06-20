@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/Karthik-13/cowin-cli/api"
@@ -66,17 +67,19 @@ type VaccineCenters struct {
 	VaccineCenterDistrict string `json:"district_name"`
 	VaccineCenterBlock    string `json:"block_name"`
 	VaccineCenterPincode  int    `json:"pincode"`
+	VaccineFeeType        string `json:"fee_type"`
 	//VaccineSessions       json.RawMessage `json:"sessions"`
 	VaccineSessions []VaccineSession `json:"sessions"`
 }
 
 type VaccineSession struct {
-	VaccinationDate             string `json:"date"`
-	VaccinationAvailableCapcity int    `json:"available_capacity"`
-	VaccinationAgeLimit         int    `json:"min_age_limit"`
-	VaccineName                 string `json:"vaccine"`
-	VaccineFirstDose            int    `json:"available_capacity_dose1"`
-	VaccineSecondDose           int    `json:"available_capacity_dose2"`
+	VaccinationDate             string   `json:"date"`
+	VaccinationAvailableCapcity int      `json:"available_capacity"`
+	VaccinationAgeLimit         int      `json:"min_age_limit"`
+	VaccineName                 string   `json:"vaccine"`
+	VaccineFirstDose            int      `json:"available_capacity_dose1"`
+	VaccineSecondDose           int      `json:"available_capacity_dose2"`
+	VaccineAvailableSlots       []string `json:"slots"`
 }
 
 func getDataByPincode(pincode string, date string, vaccine string) {
@@ -98,11 +101,13 @@ func getDataByPincode(pincode string, date string, vaccine string) {
 	}
 	table := api.GenerateTable()
 
-	table.SetHeader([]string{"Vaccine Center Name", "State", "District", "Block", "Pincode", "Vaccine", "Vaccine Date", "Age Limit", "Vaccine Available", "Available First Dose", "Available Second Dose"})
+	table.SetHeader([]string{"Vaccine Center Name", "State", "District", "Block", "Pincode", "Vaccine", "Fee Type", "Vaccine Date", "Slot Timing", "Age Limit", "Vaccine Available", "Available First Dose", "Available Second Dose"})
 	for _, v := range vaccineCenters {
 		for _, v1 := range v.VaccineSessions {
-			row := []string{v.VaccineCenterName, v.VaccineCenterState, v.VaccineCenterDistrict, v.VaccineCenterBlock, strconv.Itoa(v.VaccineCenterPincode), v1.VaccineName, v1.VaccinationDate, strconv.Itoa(v1.VaccinationAgeLimit), strconv.Itoa(v1.VaccinationAvailableCapcity), strconv.Itoa(v1.VaccineFirstDose), strconv.Itoa(v1.VaccineSecondDose)}
+			//for _, v2 := range v1.VaccineAvailableSlots {
+			row := []string{v.VaccineCenterName, v.VaccineCenterState, v.VaccineCenterDistrict, v.VaccineCenterBlock, strconv.Itoa(v.VaccineCenterPincode), v1.VaccineName, v.VaccineFeeType, v1.VaccinationDate, strings.Join(v1.VaccineAvailableSlots, ",\n"), strconv.Itoa(v1.VaccinationAgeLimit) + "+", strconv.Itoa(v1.VaccinationAvailableCapcity), strconv.Itoa(v1.VaccineFirstDose), strconv.Itoa(v1.VaccineSecondDose)}
 			data = append(data, row)
+			//}
 		}
 	}
 	table.AppendBulk(data)
