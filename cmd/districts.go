@@ -18,12 +18,11 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
-	"net/http"
 	"os"
 	"strconv"
 
+	"github.com/Karthik-13/cowin-cli/api"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 )
@@ -39,6 +38,8 @@ var districtsCmd = &cobra.Command{
 	},
 }
 
+var stateId string
+
 type DistrictList struct {
 	Districts json.RawMessage `json:"districts"`
 }
@@ -50,12 +51,14 @@ type Districts struct {
 
 func init() {
 	getCmd.AddCommand(districtsCmd)
-	districtsCmd.PersistentFlags().String("state_id", "", "Pass \"state_id\" to get the list of districts available for the state.\nGet state list using \"cowin get states\"")
+	districtsCmd.PersistentFlags().StringVar(&stateId, "state_id", "", "Pass \"state_id\" to get the list of districts available for the state.\nGet state list using \"cowin get states\"")
+	districtsCmd.MarkPersistentFlagRequired("state_id")
+
 }
 
 func getDistricts(stateId string) {
 	baseUrl := fmt.Sprintf("https://cdn-api.co-vin.in/api/v2/admin/location/districts/%s", stateId)
-	responseBytes := getDistrictsData(baseUrl)
+	responseBytes := api.GetApiData(baseUrl)
 
 	districtListRaw := DistrictList{}
 
@@ -77,31 +80,4 @@ func getDistricts(stateId string) {
 		table.Append(data)
 	}
 	table.Render()
-}
-
-func getDistrictsData(baseAPI string) []byte {
-	request, err := http.NewRequest(
-		http.MethodGet, //method
-		baseAPI,        //url
-		nil,            //body
-	)
-
-	if err != nil {
-		log.Printf("Could not request a CoWin API. %v", err)
-	}
-
-	request.Header.Add("Accept", "application/json")
-	request.Header.Add("User-Agent", "CoWin CLI")
-
-	response, err := http.DefaultClient.Do(request)
-	if err != nil {
-		log.Printf("Could not make a request. %v", err)
-	}
-
-	responseBytes, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		log.Printf("Could not read response body. %v", err)
-	}
-
-	return responseBytes
 }
