@@ -13,7 +13,7 @@ type AllStates struct {
 func GetStates() (a AllStates, err error) {
 
 	req := createRequest("GET", "cdn-api.co-vin.in/api/v2/admin/location/states", nil, nil)
-	req.Header.Set("User-Agent", "Golang_Spider_Bot/3.0")
+	req.Header.Set("User-Agent", "Cowin_Cli/1.0")
 
 	err = sendRequest(req, &a)
 

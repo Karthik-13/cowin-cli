@@ -13,7 +13,7 @@ type AllDistricts struct {
 func GetDistricts(stateId string) (a AllDistricts, err error) {
 
 	req := createRequest("GET", PublicURLV2+"/admin/location/districts/"+stateId, nil, nil)
-	req.Header.Set("User-Agent", "Golang_Spider_Bot/3.0")
+	req.Header.Set("User-Agent", "Cowin_Cli/1.0")
 	req.Header.Set("Accept-Language", "hi_IN")
 	err = sendRequest(req, &a)
 

@@ -67,6 +67,9 @@ func init() {
 
 	getCmd.AddCommand(getStatesCmd())
 	getCmd.AddCommand(getDistrictsCmd())
+	getCmd.AddCommand(getAppointmentCmd())
+	getCmd.PersistentFlags().StringVarP(&format, "format", "f", "table", "The formatting style for command output. (default is table)")
+
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
