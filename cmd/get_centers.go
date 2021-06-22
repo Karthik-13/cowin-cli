@@ -42,11 +42,13 @@ func getCentersCmd() *cobra.Command {
 		Args:  cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
 			var data [][]string
+
 			if c_pincode == "" && c_districtid == "" && c_centerid == "" {
 				fmt.Println("pincode or district-id or center-id is mandatory")
 				return
 			}
 
+			// get centers list based on the pincode
 			if c_pincode != "" && c_districtid == "" && c_centerid == "" {
 				res, err := api.GetCentersSessionsByPin(c_pincode, c_date, c_vaccine)
 				if err != nil {
@@ -82,6 +84,7 @@ func getCentersCmd() *cobra.Command {
 				}
 			}
 
+			// get centers list based on the district id
 			if c_districtid != "" && c_pincode == "" && c_centerid == "" {
 				res, err := api.GetCentersSessionsByDistrict(c_districtid, c_date, c_vaccine)
 				if err != nil {
@@ -117,6 +120,7 @@ func getCentersCmd() *cobra.Command {
 				}
 			}
 
+			// get centers list based on the center id
 			if c_centerid != "" && c_pincode == "" && c_districtid == "" {
 				res, err := api.GetCentersSessionsByCenter(c_centerid, c_date, c_vaccine)
 				if err != nil {
