@@ -16,38 +16,158 @@
 //
 package cmd
 
-// import (
-// 	"fmt"
+import (
+	"fmt"
+	"github.com/Karthik-13/cowin-cli/api"
+	"github.com/spf13/cobra"
+	"strconv"
+	"strings"
+	"time"
+)
 
-// 	"github.com/spf13/cobra"
-// )
+var (
+	c_pincode    string
+	c_date       string
+	c_districtid string
+	c_centerid   string
+	c_vaccine    string
+)
 
-// // getCentersCmd represents the getCenters command
-// var (
-// 	getCentersCmd = &cobra.Command{
-// 		Use:   "centers",
-// 		Short: "List the vaccination centers in India",
-// 		Long:  `Prints the list of vaccination centers, along with their location, pin, block`,
-// 		Args:  cobra.NoArgs,
-// 		Run: func(cmd *cobra.Command, args []string) {
-// 			fmt.Println("getCenters called")
-// 		},
-// 	}
-// 	FliterBy string
-// )
+// getCentersCmd represents the getCenters command
+func getCentersCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "centers",
+		Short: "List the vaccination centers in India - 7 days detail will be listed.",
+		Long:  `Prints the list of vaccination centers, along with their location, pin, block - 7 days detail will be listed.`,
+		Args:  cobra.NoArgs,
+		Run: func(cmd *cobra.Command, args []string) {
+			var data [][]string
+			if c_pincode == "" && c_districtid == "" && c_centerid == "" {
+				fmt.Println("pincode or district-id or center-id is mandatory")
+				return
+			}
 
-// func newGetCentersCmd() *cobra.Command {
-// 	cmd := &cobra.Command{
-// 		Use:   "centers",
-// 		Short: "List the vaccination centers in India",
-// 		Long:  `Prints the list of vaccination centers, along with their location, pin, block`,
-// 		Args:  cobra.NoArgs,
-// 		Run: func(cmd *cobra.Command, args []string) {
-// 			fmt.Println("getCenters called")
-// 		},
-// 	}
-// 	return cmd
-// }
+			if c_pincode != "" && c_districtid == "" && c_centerid == "" {
+				res, err := api.GetCentersSessionsByPin(c_pincode, c_date, c_vaccine)
+				if err != nil {
+					fmt.Printf("Couldn't get appointments info - %v\n", err)
+					return
+				}
+
+				if len(res.Centers) == 0 {
+					fmt.Println("Couldn't find any centers for given date and Pincode")
+					return
+				}
+
+				for _, center := range res.Centers {
+					for _, session := range center.Sessions {
+						row := []string{
+							strconv.Itoa(center.CenterId),
+							center.CenterName,
+							center.CenterState,
+							center.CenterDistrict,
+							center.CenterBlock,
+							strconv.Itoa(center.CenterPincode),
+							session.VaccineName,
+							center.FeeType,
+							session.Date,
+							strings.Join(session.AvailableSlots, ",\n"),
+							strconv.Itoa(session.AgeLimit) + "+",
+							strconv.Itoa(session.AvailableCapcity),
+							strconv.Itoa(session.FirstDose),
+							strconv.Itoa(session.SecondDose),
+						}
+						data = append(data, row)
+					}
+				}
+			}
+
+			if c_districtid != "" && c_pincode == "" && c_centerid == "" {
+				res, err := api.GetCentersSessionsByDistrict(c_districtid, c_date, c_vaccine)
+				if err != nil {
+					fmt.Printf("Couldn't get appointments info - %v\n", err)
+					return
+				}
+
+				if len(res.Centers) == 0 {
+					fmt.Println("Couldn't find any centers for given date and Pincode")
+					return
+				}
+
+				for _, center := range res.Centers {
+					for _, session := range center.Sessions {
+						row := []string{
+							strconv.Itoa(center.CenterId),
+							center.CenterName,
+							center.CenterState,
+							center.CenterDistrict,
+							center.CenterBlock,
+							strconv.Itoa(center.CenterPincode),
+							session.VaccineName,
+							center.FeeType,
+							session.Date,
+							strings.Join(session.AvailableSlots, ",\n"),
+							strconv.Itoa(session.AgeLimit) + "+",
+							strconv.Itoa(session.AvailableCapcity),
+							strconv.Itoa(session.FirstDose),
+							strconv.Itoa(session.SecondDose),
+						}
+						data = append(data, row)
+					}
+				}
+			}
+
+			if c_centerid != "" && c_pincode == "" && c_districtid == "" {
+				res, err := api.GetCentersSessionsByCenter(c_centerid, c_date, c_vaccine)
+				if err != nil {
+					fmt.Printf("Couldn't get appointments info - %v\n", err)
+					return
+				}
+
+				center := res.Centers
+				for _, session := range center.Sessions {
+					row := []string{
+						strconv.Itoa(center.CenterId),
+						center.CenterName,
+						center.CenterState,
+						center.CenterDistrict,
+						center.CenterBlock,
+						strconv.Itoa(center.CenterPincode),
+						session.VaccineName,
+						center.FeeType,
+						session.Date,
+						strings.Join(session.AvailableSlots, ",\n"),
+						strconv.Itoa(session.AgeLimit) + "+",
+						strconv.Itoa(session.AvailableCapcity),
+						strconv.Itoa(session.FirstDose),
+						strconv.Itoa(session.SecondDose),
+					}
+					data = append(data, row)
+				}
+
+			}
+
+			table := getTable()
+			table.SetHeader([]string{"Center ID", "Center Name", "State", "District", "Block", "Pincode", "Vaccine Name", "Fee Type", "Vaccine Date", "Slot Timing", "Age Limit", "Vaccine Available", "Available First Dose", "Available Second Dose"})
+			for _, v := range data {
+				table.Append(v)
+			}
+
+			table.Render()
+		},
+	}
+
+	d := time.Now()
+	date := fmt.Sprintf("%d-%02d-%02d", d.Day(), int(d.Month()), d.Year())
+
+	cmd.Flags().StringVar(&c_pincode, "pincode", "", "Get appointment sesssions available near the pincode")
+	cmd.Flags().StringVar(&c_date, "date", date, "Date for which we need the appointments. Format - DD-MM-YYYY")
+	cmd.Flags().StringVar(&c_districtid, "district-id", "", "Pass \"district-id\" to get the list vaccination centers and slots available for appointment.\nGet district list using \"cowin get district --state-id\"")
+	cmd.Flags().StringVar(&c_centerid, "center-id", "", "Pass \"center-id\" to get the list vaccination centers and slots available for appointment.")
+	cmd.Flags().StringVar(&c_vaccine, "vaccine", "", "Vaccine name to customize the search.")
+
+	return cmd
+}
 
 // func init() {
 // 	getCmd.AddCommand(getCentersCmd)

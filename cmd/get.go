@@ -68,6 +68,7 @@ func init() {
 	getCmd.AddCommand(getStatesCmd())
 	getCmd.AddCommand(getDistrictsCmd())
 	getCmd.AddCommand(getAppointmentCmd())
+	getCmd.AddCommand(getCentersCmd())
 	getCmd.PersistentFlags().StringVarP(&format, "format", "f", "table", "The formatting style for command output. (default is table)")
 
 	// Here you will define your flags and configuration settings.
